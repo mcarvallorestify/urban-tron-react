@@ -2,83 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 15%;
+    --background: 20 10% 8%;
+    --foreground: 40 20% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 15%;
+    --card: 20 10% 12%;
+    --card-foreground: 40 20% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 15%;
+    --popover: 20 10% 10%;
+    --popover-foreground: 40 20% 95%;
 
-    --primary: 30 25% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 38 70% 50%;
+    --primary-foreground: 20 10% 8%;
 
-    --secondary: 30 15% 92%;
-    --secondary-foreground: 30 25% 30%;
+    --secondary: 20 10% 18%;
+    --secondary-foreground: 40 20% 90%;
 
-    --muted: 30 10% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 20 10% 20%;
+    --muted-foreground: 40 10% 60%;
 
-    --accent: 30 30% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 50% 45%;
+    --accent-foreground: 40 20% 95%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 40 20% 95%;
 
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 30 25% 45%;
+    --border: 20 10% 20%;
+    --input: 20 10% 20%;
+    --ring: 38 70% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Custom colors for Troncal Urbano */
-    --brown-primary: 30 25% 45%;
-    --brown-dark: 30 30% 28%;
-    --brown-light: 30 20% 60%;
-    --gold: 40 50% 55%;
-    --footer-bg: 0 0% 18%;
-    --footer-foreground: 0 0% 90%;
+    /* Custom Troncal Urbano colors */
+    --gold: 38 70% 50%;
+    --gold-light: 40 60% 65%;
+    --brown-dark: 20 15% 15%;
+    --brown-darker: 20 10% 6%;
 
     --font-heading: 'Playfair Display', serif;
-    --font-body: 'Lato', sans-serif;
+    --font-body: 'Montserrat', sans-serif;
   }
 
-  .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 95%;
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 20 10% 10%;
 
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 10% 10%;
 
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 10% 10%;
 
-    --primary: 30 30% 55%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 38 70% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 20% 20%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 40 20% 95%;
+    --secondary-foreground: 20 10% 20%;
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 40 15% 92%;
+    --muted-foreground: 20 10% 45%;
 
-    --accent: 30 30% 50%;
+    --accent: 38 50% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 40%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 25%;
-    --input: 0 0% 25%;
-    --ring: 30 30% 55%;
-
-    --footer-bg: 0 0% 8%;
-    --footer-foreground: 0 0% 90%;
+    --border: 40 15% 88%;
+    --input: 40 15% 88%;
+    --ring: 38 70% 45%;
   }
 }
 
@@ -87,8 +79,12 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
   }
 
@@ -99,66 +95,76 @@
 
 @layer components {
   .section-title {
-    @apply text-3xl md:text-4xl font-semibold text-primary text-center mb-4;
+    @apply text-3xl md:text-4xl lg:text-5xl font-semibold text-primary text-center tracking-wide;
     font-family: var(--font-heading);
   }
 
   .section-subtitle {
-    @apply text-xl md:text-2xl font-medium text-foreground text-center mb-2;
-    font-family: var(--font-heading);
+    @apply text-lg md:text-xl text-muted-foreground text-center max-w-2xl mx-auto mt-4;
+    font-family: var(--font-body);
+    font-weight: 300;
   }
 
   .nav-link {
-    @apply text-foreground hover:text-primary transition-colors duration-200 font-medium;
+    @apply text-foreground/80 hover:text-primary transition-colors duration-300 font-medium text-sm uppercase tracking-widest;
   }
 
   .nav-link-active {
-    @apply text-primary font-semibold underline underline-offset-4;
+    @apply text-primary;
+  }
+
+  .gold-button {
+    @apply bg-primary text-primary-foreground px-8 py-3 font-semibold uppercase tracking-wider text-sm transition-all duration-300 hover:bg-primary/90 hover:shadow-[0_0_30px_rgba(202,138,4,0.3)];
+  }
+
+  .outline-button {
+    @apply border border-primary/50 text-primary px-8 py-3 font-semibold uppercase tracking-wider text-sm transition-all duration-300 hover:bg-primary/10 hover:border-primary;
+  }
+
+  .menu-category-card {
+    @apply relative overflow-hidden rounded-lg bg-card border border-border/50 transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(202,138,4,0.1)];
   }
 
   .event-card {
-    @apply bg-card rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300;
+    @apply bg-card rounded-lg overflow-hidden border border-border/30 hover:border-primary/40 transition-all duration-500 hover:shadow-[0_0_30px_rgba(202,138,4,0.15)];
   }
 
-  .cta-button {
-    @apply bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity duration-200;
-  }
-
-  .info-card {
-    @apply bg-brown-dark text-primary-foreground p-6 rounded-lg;
+  .glass-effect {
+    @apply bg-background/80 backdrop-blur-md;
   }
 }
 
 @layer utilities {
-  .bg-brown-dark {
-    background-color: hsl(var(--brown-dark));
+  .text-gold {
+    color: hsl(var(--gold));
   }
 
-  .bg-brown-primary {
-    background-color: hsl(var(--brown-primary));
-  }
-
-  .bg-brown-light {
-    background-color: hsl(var(--brown-light));
-  }
-
-  .text-brown-primary {
-    color: hsl(var(--brown-primary));
-  }
-
-  .text-brown-dark {
-    color: hsl(var(--brown-dark));
-  }
-
-  .bg-footer {
-    background-color: hsl(var(--footer-bg));
-  }
-
-  .text-footer {
-    color: hsl(var(--footer-foreground));
+  .bg-gold {
+    background-color: hsl(var(--gold));
   }
 
   .border-gold {
     border-color: hsl(var(--gold));
+  }
+
+  .gradient-overlay {
+    background: linear-gradient(180deg, 
+      hsl(var(--background)) 0%, 
+      transparent 20%, 
+      transparent 80%, 
+      hsl(var(--background)) 100%
+    );
+  }
+
+  .gradient-dark {
+    background: linear-gradient(180deg, 
+      hsl(var(--background) / 0.9) 0%, 
+      hsl(var(--background) / 0.7) 50%,
+      hsl(var(--background)) 100%
+    );
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 20px rgba(0,0,0,0.5);
   }
 }
