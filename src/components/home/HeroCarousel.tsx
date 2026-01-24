@@ -1,27 +1,41 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import img1 from '/src/images/1.jpeg';
+import img2 from '/src/images/2.jpeg';
+import img3 from '/src/images/3.jpeg';
+import img4 from '/src/images/4.jpeg';
+import img5 from '/src/images/5.jpeg';
+import img6 from '/src/images/6.jpeg';
 
+// const carouselImages = [
+//   {
+//     url: 'https://pdv.restify.cl/media/imagenes/1762005847_WhatsApp_Image_2025-10-31_at_18.19.44.jpg',
+//     alt: 'Evento Sábados'
+//   },
+//   {
+//     url: 'https://pdv.restify.cl/media/imagenes/1762006051_WhatsApp_Image_2025-10-31_at_18.19.44__1_.jpg',
+//     alt: 'Evento Domingos'
+//   },
+//   {
+//     url: 'https://pdv.restify.cl/media/imagenes/1762828476_WhatsApp_Image_2025-11-10_at_20.22.32.jpg',
+//     alt: 'Gran Noche de Clásicos'
+//   },
+//   {
+//     url: 'https://pdv.restify.cl/media/imagenes/1764601551_WhatsApp_Image_2025-11-30_at_12.28.39.jpg',
+//     alt: 'Humor y Romance'
+//   },
+//   {
+//     url: 'https://pdv.restify.cl/media/imagenes/1762007001_WhatsApp_Image_2025-10-31_at_18.19.44__1_.jpg',
+//     alt: 'Entre Cumbias y Rancheras'
+//   },
+// ];
 const carouselImages = [
-  {
-    url: 'https://pdv.restify.cl/media/imagenes/1762005847_WhatsApp_Image_2025-10-31_at_18.19.44.jpg',
-    alt: 'Evento Sábados'
-  },
-  {
-    url: 'https://pdv.restify.cl/media/imagenes/1762006051_WhatsApp_Image_2025-10-31_at_18.19.44__1_.jpg',
-    alt: 'Evento Domingos'
-  },
-  {
-    url: 'https://pdv.restify.cl/media/imagenes/1762828476_WhatsApp_Image_2025-11-10_at_20.22.32.jpg',
-    alt: 'Gran Noche de Clásicos'
-  },
-  {
-    url: 'https://pdv.restify.cl/media/imagenes/1764601551_WhatsApp_Image_2025-11-30_at_12.28.39.jpg',
-    alt: 'Humor y Romance'
-  },
-  {
-    url: 'https://pdv.restify.cl/media/imagenes/1762007001_WhatsApp_Image_2025-10-31_at_18.19.44__1_.jpg',
-    alt: 'Entre Cumbias y Rancheras'
-  },
+  { url: img1, alt: 'Evento Sábados' },
+  { url: img2, alt: 'Evento Domingos' },
+  { url: img3, alt: 'Gran Noche de Clásicos' },
+  { url: img4, alt: 'Entre Cumbias y Rancheras' },
+  { url: img5, alt: 'Humor y Romance' },
+  { url: img6, alt: 'Cumbia Nena Tributo Amar Azul' },
 ];
 
 const HeroCarousel = () => {
