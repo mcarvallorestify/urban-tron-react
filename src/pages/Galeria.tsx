@@ -1,22 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
+// const galleryImages = [
+//   'https://pdv.restify.cl/media/imagenes/1755629257_3B579DAB-66E5-48F8-BD5F-C6A933090CFB.jpg',
+//   'https://pdv.restify.cl/media/imagenes/1755705198_WhatsApp_Image_2025-08-19_at_22.13.42__1_.jpg',
+//   'https://pdv.restify.cl/media/imagenes/1755630548_490301338_1166774602127050_3198940630697480348_n.jpg',
+//   'https://pdv.restify.cl/media/imagenes/1762005847_WhatsApp_Image_2025-10-31_at_18.19.44.jpg',
+//   'https://pdv.restify.cl/media/imagenes/1762006051_WhatsApp_Image_2025-10-31_at_18.19.44__1_.jpg',
+//   'https://pdv.restify.cl/media/imagenes/1762828476_WhatsApp_Image_2025-11-10_at_20.22.32.jpg',
+//   'https://pdv.restify.cl/media/imagenes/1764601551_WhatsApp_Image_2025-11-30_at_12.28.39.jpg',
+//   'https://pdv.restify.cl/media/imagenes/1764601949_WhatsApp_Image_2025-11-30_at_12.28.40.jpg',
+// ];
 
-const galleryImages = [
-  'https://pdv.restify.cl/media/imagenes/1755629257_3B579DAB-66E5-48F8-BD5F-C6A933090CFB.jpg',
-  'https://pdv.restify.cl/media/imagenes/1755705198_WhatsApp_Image_2025-08-19_at_22.13.42__1_.jpg',
-  'https://pdv.restify.cl/media/imagenes/1755630548_490301338_1166774602127050_3198940630697480348_n.jpg',
-  'https://pdv.restify.cl/media/imagenes/1762005847_WhatsApp_Image_2025-10-31_at_18.19.44.jpg',
-  'https://pdv.restify.cl/media/imagenes/1762006051_WhatsApp_Image_2025-10-31_at_18.19.44__1_.jpg',
-  'https://pdv.restify.cl/media/imagenes/1762828476_WhatsApp_Image_2025-11-10_at_20.22.32.jpg',
-  'https://pdv.restify.cl/media/imagenes/1764601551_WhatsApp_Image_2025-11-30_at_12.28.39.jpg',
-  'https://pdv.restify.cl/media/imagenes/1764601949_WhatsApp_Image_2025-11-30_at_12.28.40.jpg',
-];
+const EMPRESA_ID = 70;
 
 const Galeria = () => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+
+  // Llamada real a Supabase para obtener imágenes filtradas por empresa
+  useEffect(() => {
+    async function fetchImages() {
+      const { data, error } = await supabase
+        .from('galeriaEmpresa')
+        .select('media')
+        .eq('empresa', EMPRESA_ID)
+        .order('id', { ascending: false });
+      if (error) {
+        // Puedes mostrar un toast o mensaje de error aquí
+        setGalleryImages([]);
+        return;
+      }
+      setGalleryImages(data?.map((img: { media: string }) => img.media) || []);
+    }
+    fetchImages();
+  }, []);
 
   const goToPrevious = () => {
     if (selectedIndex !== null) {
@@ -34,7 +55,7 @@ const Galeria = () => {
     <Layout>
       <section className="py-12 md:py-16 px-4">
         <div className="container mx-auto">
-          <h1 className="section-title">Galería</h1>
+          <h1 className="section-title mb-4">Galería</h1>
           <p className="text-center text-primary font-heading text-lg mb-2">
             Te invitamos a revivir momentos!
           </p>
@@ -42,17 +63,20 @@ const Galeria = () => {
             ¿Listo para crear tu propio recuerdo? ¡Ven y vive la experiencia!
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {galleryImages.map((url, index) => (
-              <button 
+              <button
                 key={index}
                 onClick={() => setSelectedIndex(index)}
-                className="aspect-video rounded-lg overflow-hidden bg-muted shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                className="rounded-xl overflow-hidden bg-muted shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer border border-border focus:outline-none focus:ring-2 focus:ring-primary w-full"
+                style={{ padding: 0 }}
+                aria-label={`Ver imagen ${index + 1}`}
               >
                 <img
                   src={url}
                   alt={`Galería ${index + 1}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                  style={{ maxHeight: '320px' }}
                 />
               </button>
             ))}
@@ -64,15 +88,16 @@ const Galeria = () => {
         </div>
       </section>
 
-      {/* Lightbox */}
+      {/* Lightbox mejorado */}
       <Dialog open={selectedIndex !== null} onOpenChange={() => setSelectedIndex(null)}>
-        <DialogContent className="max-w-5xl w-[95vw] h-[90vh] p-0 bg-background/95 backdrop-blur-sm border-none">
+        <DialogContent className="max-w-md w-[95vw] h-[80vh] p-0 bg-background/95 backdrop-blur-sm border-none flex flex-col items-center justify-center">
           <div className="relative w-full h-full flex items-center justify-center">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setSelectedIndex(null)}
               className="absolute top-4 right-4 z-10 rounded-full bg-background/80 hover:bg-background"
+              aria-label="Cerrar"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -81,7 +106,7 @@ const Galeria = () => {
               <img
                 src={galleryImages[selectedIndex]}
                 alt={`Galería ${selectedIndex + 1}`}
-                className="max-w-full max-h-full object-contain p-8"
+                className="max-w-full max-h-[60vh] object-contain mx-auto rounded-lg shadow-lg"
               />
             )}
 
@@ -90,6 +115,7 @@ const Galeria = () => {
               size="icon"
               onClick={goToPrevious}
               className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 hover:bg-background shadow-lg"
+              aria-label="Anterior"
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
@@ -98,6 +124,7 @@ const Galeria = () => {
               size="icon"
               onClick={goToNext}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 hover:bg-background shadow-lg"
+              aria-label="Siguiente"
             >
               <ChevronRight className="w-6 h-6" />
             </Button>
