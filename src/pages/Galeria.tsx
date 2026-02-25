@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,10 @@ import { supabase } from '@/lib/supabaseClient';
 const EMPRESA_ID = 70;
 
 const Galeria = () => {
+    // Detecta si la URL es de video
+    const isVideo = (url: string) => {
+      return /\.(mp4|mov|webm|ogg)$/i.test(url);
+    };
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
@@ -30,7 +34,6 @@ const Galeria = () => {
         .eq('empresa', EMPRESA_ID)
         .order('id', { ascending: false });
       if (error) {
-        // Puedes mostrar un toast o mensaje de error aquí
         setGalleryImages([]);
         return;
       }
@@ -64,20 +67,32 @@ const Galeria = () => {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {galleryImages.map((url, index) => (
+            {(galleryImages || []).map((url, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedIndex(index)}
                 className="rounded-xl overflow-hidden bg-muted shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer border border-border focus:outline-none focus:ring-2 focus:ring-primary w-full"
                 style={{ padding: 0 }}
-                aria-label={`Ver imagen ${index + 1}`}
+                aria-label={`Ver media ${index + 1}`}
               >
-                <img
-                  src={url}
-                  alt={`Galería ${index + 1}`}
-                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
-                  style={{ maxHeight: '320px' }}
-                />
+                {isVideo(url) ? (
+                  <video
+                    src={url}
+                    controls
+                    muted
+                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                    style={{ maxHeight: '320px' }}
+                  >
+                    Tu navegador no soporta el video.
+                  </video>
+                ) : (
+                  <img
+                    src={url}
+                    alt={`Galería ${index + 1}`}
+                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                    style={{ maxHeight: '320px' }}
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -102,12 +117,25 @@ const Galeria = () => {
               <X className="w-5 h-5" />
             </Button>
 
-            {selectedIndex !== null && (
-              <img
-                src={galleryImages[selectedIndex]}
-                alt={`Galería ${selectedIndex + 1}`}
-                className="max-w-full max-h-[60vh] object-contain mx-auto rounded-lg shadow-lg"
-              />
+            {selectedIndex !== null && galleryImages[selectedIndex] && (
+              isVideo(galleryImages[selectedIndex]) ? (
+                <video
+                  src={galleryImages[selectedIndex]}
+                  controls
+                  autoPlay
+                  preload="metadata"
+                  playsInline
+                  className="max-w-full max-h-[60vh] object-contain mx-auto rounded-lg shadow-lg"
+                >
+                  Tu navegador no soporta el video.
+                </video>
+              ) : (
+                <img
+                  src={galleryImages[selectedIndex]}
+                  alt={`Galería ${selectedIndex + 1}`}
+                  className="max-w-full max-h-[60vh] object-contain mx-auto rounded-lg shadow-lg"
+                />
+              )
             )}
 
             <Button
@@ -130,7 +158,7 @@ const Galeria = () => {
             </Button>
 
             {/* Counter */}
-            {selectedIndex !== null && (
+            {selectedIndex !== null && galleryImages.length > 0 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 px-4 py-2 rounded-full text-sm">
                 {selectedIndex + 1} / {galleryImages.length}
               </div>
