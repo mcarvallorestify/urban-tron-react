@@ -1,69 +1,89 @@
-import { useState /*, useEffect */ } from 'react';
-// import { supabase } from '@/lib/supabaseClient';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 import Layout from '@/components/layout/Layout';
 import EventCard from '@/components/events/EventCard';
 import EventModal from '@/components/events/EventModal';
-import img1 from '/src/images/1.jpeg';
-import img2 from '/src/images/2.jpeg';
-import img3 from '/src/images/3.jpeg';
-import img4 from '/src/images/4.jpeg';
-import img5 from '/src/images/5.jpeg';
-import img6 from '/src/images/6.jpeg';
-// Lista local de eventos. Para usar Supabase, descomenta el useEffect y el fetch más abajo.
-const allEvents = [
-  {
-    id: 1,
-    title: 'Reventón Tropical',
-    description: 'Grupo Fama, Palomo y Los Cristales, La Banda de las Corbatas.',
-    image: img1,
-  },
-  {
-    id: 2,
-    title: 'Potencia',
-    description: '🎉 Potencia, Palomo y Los Cristales, La Banda de las Corbatas.',
-    image: img2,
-  },{
-    id: 3,
-    title: 'Los Golpes y la Banda de las Corbatas',
-    description: '🎶  Los Golpes y la Banda de las Corbatas',
-    image: img3,
-  },
-  {
-    id: 4,
-    title: 'Los Charros de Argentina',
-    description: 'Los Charros de Argentina, junto a La Banda de las Corbatas y Palomo y los Cristales, te invitan a una noche llena de música, baile y diversión.\n\n¡No te lo pierdas!',
-    image: img4,
-  },
-  
-  {
-    id: 5,
-    title: 'TODOS LOS SÁBADOS',
-    description: 'Con los grupos La Banda de las Corbatas, Grupo Marea y como anunciador interactivo Lito Gallardo.\n\nParrilla bailable, tragos y más.\n\nLa mejor fiesta de Villa Alemana cada sábado.',
-    image: img5,
-  },
-  {
-    id: 6,
-    title: 'TODOS LOS DOMINGOS',
-    description: 'PALOMO Y LOS CRYSTALES\n\nValor menú completo $10.000\nDesde las 13 hrs.\n\nVen a disfrutar de la mejor música tropical con el ambiente familiar que nos caracteriza.',
-    image: img6,
-  },
-];
+
+const EMPRESA_ID = 70;
+
+interface EventItem {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  subtitle?: string;
+  price?: string;
+}
+
+const getString = (value: unknown) => (typeof value === 'string' ? value : '');
+const getNumber = (value: unknown) => (typeof value === 'number' ? value : null);
+
+const mapEventFromRow = (row: Record<string, unknown>): EventItem | null => {
+  const image =
+    getString(row.img) ||
+    getString(row.img_promocional) ||
+    getString(row.image) ||
+    getString(row.imagen) ||
+    getString(row.image_url) ||
+    getString(row.imagen_url) ||
+    '';
+
+  if (!image) return null;
+
+  const valorEntrada = getNumber(row.valor_entrada);
+
+  return {
+    id: Number(row.id) || 0,
+    title: getString(row.titulo) || getString(row.title) || 'Evento',
+    description: getString(row.descripcion) || getString(row.description) || '',
+    image,
+    subtitle: getString(row.subtitulo) || getString(row.subtitle) || undefined,
+    price:
+      getString(row.precio) ||
+      getString(row.price) ||
+      (valorEntrada !== null
+        ? `$${new Intl.NumberFormat('es-CL').format(valorEntrada)}`
+        : undefined),
+  };
+};
 
 const Eventos = () => {
-  const [selectedEvent, setSelectedEvent] = useState<typeof allEvents[0] | null>(null);
-  // const [events, setEvents] = useState<typeof allEvents>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect(() => {
-  //   // Si quieres volver a usar Supabase, descomenta esto y ajusta según tu tabla
-  //   const fetchEvents = async () => {
-  //     const { data, error } = await supabase.from('events').select('*');
-  //     if (!error && data) setEvents(data);
-  //   };
-  //   fetchEvents();
-  // }, []);
+  useEffect(() => {
+    let mounted = true;
 
-  // const eventsToShow = events.length > 0 ? events : allEvents;
-  const eventsToShow = allEvents;
+    const fetchEvents = async () => {
+      const { data, error } = await supabase
+        .from('eventos')
+        .select('*')
+        .eq('empresa', EMPRESA_ID)
+        .order('id', { ascending: false });
+
+      if (!mounted) return;
+
+      if (error || !data) {
+        setEvents([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const mappedEvents = data
+        .map((row) => mapEventFromRow(row as Record<string, unknown>))
+        .filter((event): event is EventItem => event !== null);
+
+      setEvents(mappedEvents);
+      setIsLoading(false);
+    };
+
+    fetchEvents();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <Layout>
@@ -80,15 +100,21 @@ const Eventos = () => {
             Nuestros Eventos
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {eventsToShow.map((event) => (
-              <EventCard
-                key={event.id}
-                {...event}
-                onViewMore={() => setSelectedEvent(event)}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <p className="text-center text-muted-foreground">Cargando eventos...</p>
+          ) : events.length === 0 ? (
+            <p className="text-center text-muted-foreground">No hay eventos disponibles.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event) => (
+                <EventCard
+                  key={event.id}
+                  {...event}
+                  onViewMore={() => setSelectedEvent(event)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

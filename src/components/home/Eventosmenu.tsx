@@ -2,20 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import img1 from '/src/images/1.jpeg';
 import img2 from '/src/images/2.jpeg';
-import img3 from '/src/images/3.jpeg';
-import img4 from '/src/images/4.jpeg';
-import img5 from '/src/images/5.jpeg';
-import img6 from '/src/images/6.jpeg';
+
 
 const Eventosmenu = () => {
   // Carrusel de imágenes (agrega la imagen de Labanda Delascorbatas cuando esté disponible)
   const images = [
     { url: img1, alt: 'Evento 1' },
-    { url: img2, alt: 'Evento 2' },
-    { url: img3, alt: 'Evento 3' },
-    { url: img4, alt: 'Evento 4' },
-    { url: img5, alt: 'Evento 5' },
-    { url: img6, alt: 'Evento 6' },
+    { url: img2, alt: 'Evento 2' }
   ];
   const [current, setCurrent] = React.useState(0);
   const goPrev = () => setCurrent((prev) => (prev - 1 + images.length) % images.length);
