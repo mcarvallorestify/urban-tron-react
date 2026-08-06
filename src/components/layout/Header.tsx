@@ -48,7 +48,7 @@ const Header = () => {
             <img
               src={logo}
               alt="Troncal Urbano"
-              className="h-14 w-auto object-contain"
+              className="h-16 w-auto object-contain md:h-[4.5rem]"
             />
           </Link>
 
@@ -88,7 +88,7 @@ const Header = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
 
@@ -101,7 +101,7 @@ const Header = () => {
                   key={link.path}
                   to={link.path}
                   className={cn(
-                    'nav-link text-center py-3',
+                    'nav-link text-center py-4 text-lg',
                     location.pathname === link.path && 'nav-link-active'
                   )}
                   onClick={() => handleNavClick(link.path)}
