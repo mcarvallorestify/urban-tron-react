@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import logo from '@/images/logo.png';
 
 const navLinks = [
   { name: 'Inicio', path: '/' },
@@ -43,15 +44,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full border-2 border-primary flex items-center justify-center">
-              <span className="text-primary font-heading text-[8px] text-center leading-tight font-bold">
-                TRONCAL<br/>URBANO
-              </span>
-            </div>
-            <span className="hidden sm:block text-primary font-heading text-xl tracking-wider">
-              TRONCAL URBANO
-            </span>
+          <Link to="/" className="flex items-center">
+            <img
+              src={logo}
+              alt="Troncal Urbano"
+              className="h-14 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}

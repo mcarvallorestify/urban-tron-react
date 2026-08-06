@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import img1 from '/src/images/1.jpeg';
-import img2 from '/src/images/2.jpeg';
+import img1 from '@/images/1.jpeg';
+import img2 from '@/images/2.jpeg';
 
 
 const Eventosmenu = () => {

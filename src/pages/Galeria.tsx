@@ -1,45 +1,40 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
-// const galleryImages = [
-//   'https://pdv.restify.cl/media/imagenes/1755629257_3B579DAB-66E5-48F8-BD5F-C6A933090CFB.jpg',
-//   'https://pdv.restify.cl/media/imagenes/1755705198_WhatsApp_Image_2025-08-19_at_22.13.42__1_.jpg',
-//   'https://pdv.restify.cl/media/imagenes/1755630548_490301338_1166774602127050_3198940630697480348_n.jpg',
-//   'https://pdv.restify.cl/media/imagenes/1762005847_WhatsApp_Image_2025-10-31_at_18.19.44.jpg',
-//   'https://pdv.restify.cl/media/imagenes/1762006051_WhatsApp_Image_2025-10-31_at_18.19.44__1_.jpg',
-//   'https://pdv.restify.cl/media/imagenes/1762828476_WhatsApp_Image_2025-11-10_at_20.22.32.jpg',
-//   'https://pdv.restify.cl/media/imagenes/1764601551_WhatsApp_Image_2025-11-30_at_12.28.39.jpg',
-//   'https://pdv.restify.cl/media/imagenes/1764601949_WhatsApp_Image_2025-11-30_at_12.28.40.jpg',
-// ];
-
-const EMPRESA_ID = 70;
+import { EMPRESA_ID, fetchPublicEmpresaVitrina } from '@/lib/publicVitrina';
 
 const Galeria = () => {
-    // Detecta si la URL es de video
-    const isVideo = (url: string) => {
-      return /\.(mp4|mov|webm|ogg)$/i.test(url);
-    };
+  const isVideo = (url: string) => /\.(mp4|mov|webm|ogg)$/i.test(url);
+
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
-  // Llamada real a Supabase para obtener imágenes filtradas por empresa
   useEffect(() => {
+    let mounted = true;
+
     async function fetchImages() {
-      const { data, error } = await supabase
-        .from('galeriaEmpresa')
-        .select('media')
-        .eq('empresa', EMPRESA_ID)
-        .order('id', { ascending: false });
-      if (error) {
-        setGalleryImages([]);
-        return;
+      try {
+        const data = await fetchPublicEmpresaVitrina(EMPRESA_ID);
+        if (!mounted) return;
+
+        const media = [...data.galeria]
+          .sort((a, b) => b.id - a.id)
+          .map((item) => item.media)
+          .filter(Boolean);
+
+        setGalleryImages(media);
+      } catch {
+        if (mounted) setGalleryImages([]);
       }
-      setGalleryImages(data?.map((img: { media: string }) => img.media) || []);
     }
+
     fetchImages();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const goToPrevious = () => {
@@ -103,7 +98,6 @@ const Galeria = () => {
         </div>
       </section>
 
-      {/* Lightbox mejorado */}
       <Dialog open={selectedIndex !== null} onOpenChange={() => setSelectedIndex(null)}>
         <DialogContent className="max-w-md w-[95vw] h-[80vh] p-0 bg-background/95 backdrop-blur-sm border-none flex flex-col items-center justify-center">
           <div className="relative w-full h-full flex items-center justify-center">
@@ -157,7 +151,6 @@ const Galeria = () => {
               <ChevronRight className="w-6 h-6" />
             </Button>
 
-            {/* Counter */}
             {selectedIndex !== null && galleryImages.length > 0 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 px-4 py-2 rounded-full text-sm">
                 {selectedIndex + 1} / {galleryImages.length}

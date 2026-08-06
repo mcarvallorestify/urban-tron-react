@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
 import Layout from '@/components/layout/Layout';
 import EventCard from '@/components/events/EventCard';
 import EventModal from '@/components/events/EventModal';
-
-const EMPRESA_ID = 70;
+import {
+  EMPRESA_ID,
+  fetchPublicEmpresaVitrina,
+  type PublicEvento,
+} from '@/lib/publicVitrina';
 
 interface EventItem {
   id: number;
@@ -15,35 +17,19 @@ interface EventItem {
   price?: string;
 }
 
-const getString = (value: unknown) => (typeof value === 'string' ? value : '');
-const getNumber = (value: unknown) => (typeof value === 'number' ? value : null);
-
-const mapEventFromRow = (row: Record<string, unknown>): EventItem | null => {
-  const image =
-    getString(row.img) ||
-    getString(row.img_promocional) ||
-    getString(row.image) ||
-    getString(row.imagen) ||
-    getString(row.image_url) ||
-    getString(row.imagen_url) ||
-    '';
-
+const mapEvent = (evento: PublicEvento): EventItem | null => {
+  const image = evento.img || evento.img_promocional || '';
   if (!image) return null;
 
-  const valorEntrada = getNumber(row.valor_entrada);
-
   return {
-    id: Number(row.id) || 0,
-    title: getString(row.titulo) || getString(row.title) || 'Evento',
-    description: getString(row.descripcion) || getString(row.description) || '',
+    id: evento.id,
+    title: evento.titulo || 'Evento',
+    description: evento.descripcion || '',
     image,
-    subtitle: getString(row.subtitulo) || getString(row.subtitle) || undefined,
     price:
-      getString(row.precio) ||
-      getString(row.price) ||
-      (valorEntrada !== null
-        ? `$${new Intl.NumberFormat('es-CL').format(valorEntrada)}`
-        : undefined),
+      evento.valor_entrada != null
+        ? `$${new Intl.NumberFormat('es-CL').format(evento.valor_entrada)}`
+        : undefined,
   };
 };
 
@@ -56,26 +42,21 @@ const Eventos = () => {
     let mounted = true;
 
     const fetchEvents = async () => {
-      const { data, error } = await supabase
-        .from('eventos')
-        .select('*')
-        .eq('empresa', EMPRESA_ID)
-        .order('id', { ascending: false });
+      try {
+        const data = await fetchPublicEmpresaVitrina(EMPRESA_ID);
+        if (!mounted) return;
 
-      if (!mounted) return;
+        const mappedEvents = [...data.eventos]
+          .sort((a, b) => a.id - b.id)
+          .map(mapEvent)
+          .filter((event): event is EventItem => event !== null);
 
-      if (error || !data) {
-        setEvents([]);
-        setIsLoading(false);
-        return;
+        setEvents(mappedEvents);
+      } catch {
+        if (mounted) setEvents([]);
+      } finally {
+        if (mounted) setIsLoading(false);
       }
-
-      const mappedEvents = data
-        .map((row) => mapEventFromRow(row as Record<string, unknown>))
-        .filter((event): event is EventItem => event !== null);
-
-      setEvents(mappedEvents);
-      setIsLoading(false);
     };
 
     fetchEvents();

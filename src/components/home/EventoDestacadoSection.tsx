@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
-
-const EMPRESA_ID = 70;
+import {
+  EMPRESA_ID,
+  fetchPublicEmpresaVitrina,
+  type PublicEvento,
+} from '@/lib/publicVitrina';
 
 interface FeaturedEvent {
   id: number;
@@ -13,48 +15,19 @@ interface FeaturedEvent {
   price?: string;
 }
 
-const getString = (value: unknown) => (typeof value === 'string' ? value : '');
-const getNumber = (value: unknown) => (typeof value === 'number' ? value : null);
-
-const mapEventFromRow = (row: Record<string, unknown>): FeaturedEvent | null => {
-  const title =
-    getString(row.title) ||
-    getString(row.titulo) ||
-    getString(row.nombre) ||
-    'Evento destacado';
-
-  const description =
-    getString(row.description) ||
-    getString(row.descripcion) ||
-    getString(row.detalle) ||
-    '';
-
-  const image =
-    getString(row.img) ||
-    getString(row.img_promocional) ||
-    getString(row.image) ||
-    getString(row.imagen) ||
-    getString(row.image_url) ||
-    getString(row.imagen_url) ||
-    getString(row.poster) ||
-    '';
-
+const mapEvent = (evento: PublicEvento): FeaturedEvent | null => {
+  const image = evento.img || evento.img_promocional || '';
   if (!image) return null;
 
-  const valorEntrada = getNumber(row.valor_entrada);
-
   return {
-    id: Number(row.id) || 0,
-    title,
-    description,
+    id: evento.id,
+    title: evento.titulo || 'Evento destacado',
+    description: evento.descripcion || '',
     image,
-    subtitle: getString(row.subtitle) || getString(row.subtitulo) || undefined,
     price:
-      getString(row.price) ||
-      getString(row.precio) ||
-      (valorEntrada !== null
-        ? `$${new Intl.NumberFormat('es-CL').format(valorEntrada)}`
-        : undefined),
+      evento.valor_entrada != null
+        ? `$${new Intl.NumberFormat('es-CL').format(evento.valor_entrada)}`
+        : undefined,
   };
 };
 
@@ -66,26 +39,20 @@ const EventoDestacadoSection = () => {
     let mounted = true;
 
     const fetchFeaturedEvent = async () => {
-      const { data, error } = await supabase
-        .from('eventos')
-        .select('*')
-        .eq('empresa', EMPRESA_ID)
-        .eq('principal', true)
-        .order('id', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      try {
+        const data = await fetchPublicEmpresaVitrina(EMPRESA_ID);
+        if (!mounted) return;
 
-      if (!mounted) return;
+        const principal = [...data.eventos]
+          .filter((evento) => evento.principal)
+          .sort((a, b) => b.id - a.id)[0];
 
-      if (error || !data) {
-        setFeaturedEvent(null);
-        setIsLoading(false);
-        return;
+        setFeaturedEvent(principal ? mapEvent(principal) : null);
+      } catch {
+        if (mounted) setFeaturedEvent(null);
+      } finally {
+        if (mounted) setIsLoading(false);
       }
-
-      const mapped = mapEventFromRow(data as Record<string, unknown>);
-      setFeaturedEvent(mapped);
-      setIsLoading(false);
     };
 
     fetchFeaturedEvent();

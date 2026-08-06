@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import logo from '@/images/logo.png';
 
 const Footer = () => {
   return (
@@ -7,15 +8,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Logo and Info */}
           <div className="text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-              <div className="w-14 h-14 rounded-full border-2 border-primary flex items-center justify-center">
-                <span className="text-primary font-heading text-[8px] text-center leading-tight font-bold">
-                  TRONCAL<br/>URBANO
-                </span>
-              </div>
-              <span className="text-primary font-heading text-xl tracking-wider">
-                TRONCAL URBANO
-              </span>
+            <div className="flex items-center justify-center md:justify-start mb-4">
+              <img
+                src={logo}
+                alt="Troncal Urbano"
+                className="h-14 w-auto object-contain"
+              />
             </div>
             <p className="text-muted-foreground text-sm">
               Restaurante & Salón de Eventos

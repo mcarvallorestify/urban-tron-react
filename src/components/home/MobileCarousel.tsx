@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-
-const EMPRESA_ID = 70;
-
-const getString = (value: unknown) => (typeof value === 'string' ? value : '');
+import { EMPRESA_ID, fetchPublicEmpresaVitrina } from '@/lib/publicVitrina';
 
 const MobileCarousel = () => {
   const [images, setImages] = useState<string[]>([]);
@@ -14,22 +10,17 @@ const MobileCarousel = () => {
 
   useEffect(() => {
     const fetchEventImages = async () => {
-      const { data, error } = await supabase
-        .from('eventos')
-        .select('id, img, img_promocional')
-        .eq('empresa', EMPRESA_ID)
-        .order('id', { ascending: false });
+      try {
+        const data = await fetchPublicEmpresaVitrina(EMPRESA_ID);
+        const mappedImages = [...data.eventos]
+          .sort((a, b) => a.id - b.id)
+          .map((evento) => evento.img || evento.img_promocional || '')
+          .filter(Boolean);
 
-      if (error || !data) {
+        setImages(mappedImages);
+      } catch {
         setImages([]);
-        return;
       }
-
-      const mappedImages = data
-        .map((row) => getString(row.img) || getString(row.img_promocional))
-        .filter((url): url is string => Boolean(url));
-
-      setImages(mappedImages);
     };
 
     fetchEventImages();
@@ -48,7 +39,11 @@ const MobileCarousel = () => {
     return () => clearInterval(timer);
   }, [images]);
 
-  if (window.innerWidth > 768 || images.length === 0) return null;
+  if (typeof window !== 'undefined' && (window.innerWidth > 768 || images.length === 0)) {
+    return null;
+  }
+
+  if (images.length === 0) return null;
 
   return (
     <div
